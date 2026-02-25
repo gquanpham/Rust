@@ -1,0 +1,89 @@
+use std::io::{self, Write};
+
+
+pub struct Task {
+    titel: String,
+    id: u8,
+    priority: String,
+}
+
+// 2. Funktion zum Hinzufügen
+pub fn add_task(liste: &mut Vec<Task>, p_titel: String, p_id: u8, p_prior: String) {
+    let new_task = Task {
+        titel: p_titel,
+        id: p_id,
+        priority: p_prior,
+    };
+    liste.push(new_task);
+    println!("Task erfolgreich hinzugefügt!");
+}
+
+
+pub fn delete_task(liste: &mut Vec<Task>, p_id: u8) {
+    
+    if let Some(index) = liste.iter().position(|t| t.id == p_id) {
+        liste.remove(index);
+        println!("Task mit ID {} wurde gelöscht.", p_id);
+    } else {
+        println!("Fehler: ID {} wurde nicht gefunden.", p_id);
+    }
+}
+
+fn main() {
+    let mut tasks: Vec<Task> = Vec::new();
+    let mut input_buffer = String::new();
+
+    loop {
+        println!("\n--- TODO LISTE ---");
+        println!("1: Task hinzufügen");
+        println!("2: Alle Tasks anzeigen");
+        println!("3: Task löschen");
+        println!("4: Beenden");
+        print!("Auswahl: ");
+        io::stdout().flush().unwrap(); 
+
+        input_buffer.clear();
+        io::stdin().read_line(&mut input_buffer).expect("Fehler beim Lesen");
+
+        match input_buffer.trim() {
+            "1" => {
+                // Titel abfragen
+                println!("Titel eingeben:");
+                let mut t = String::new();
+                io::stdin().read_line(&mut t).unwrap();
+                
+                // ID abfragen
+                println!("ID (Zahl) eingeben:");
+                let mut id_str = String::new();
+                io::stdin().read_line(&mut id_str).unwrap();
+                let id: u8 = id_str.trim().parse().unwrap_or(0); 
+
+                // Priorität abfragen
+                println!("Priorität (hoch/mittel/niedrig):");
+                let mut p = String::new();
+                io::stdin().read_line(&mut p).unwrap();
+
+                add_task(&mut tasks, t.trim().to_string(), id, p.trim().to_string());
+            }
+            "2" => {
+                println!("\nAktuelle Aufgaben:");
+                for t in &tasks {
+                    println!("[ID: {}] {} (Prio: {})", t.id, t.titel, t.priority);
+                }
+            }
+            "3" => {
+                println!("Welche ID soll gelöscht werden?");
+                let mut id_str = String::new();
+                io::stdin().read_line(&mut id_str).unwrap();
+                let id: u8 = id_str.trim().parse().unwrap_or(0);
+                
+                delete_task(&mut tasks, id);
+            }
+            "4" => {
+                println!("Programm beendet.");
+                break;
+            }
+            _ => println!("Ungültige Eingabe, versuch es nochmal."),
+        }
+    }
+}
